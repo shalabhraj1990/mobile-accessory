@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.boot.accessory.annotations.LogExecutionTime;
 import com.spring.boot.accessory.entity.MobileAccessory;
 import com.spring.boot.accessory.repository.MobileAccessoryRepository;
 
@@ -25,6 +26,7 @@ public class MobileAccessoryController {
 	MobileAccessoryRepository repository;
 
 	@PostMapping
+	@LogExecutionTime
 	public Flux<MobileAccessory> saveMobileAccessory(@RequestBody MobileAccessory mobileAccessory) {
 		mobileAccessory.setActive(true);
 		UUID id = UUID.randomUUID();
@@ -38,21 +40,25 @@ public class MobileAccessoryController {
 	}
 
 	@GetMapping
+	@LogExecutionTime
 	public Flux<MobileAccessory> getAllAccessory() {
 		return repository.findAll();
 	}
 
 	@GetMapping("/{uuid}")
+	@LogExecutionTime
 	public Mono<MobileAccessory> getAllAccessoryById(@PathVariable UUID uuid) {
 		return repository.findById(uuid);
 	}
 
 	@GetMapping("/{mobile-type}")
+	@LogExecutionTime
 	public Flux<MobileAccessory> getAllAccessoryByType(@PathVariable String mobileType) {
 		return repository.findByMobileType(mobileType);
 	}
 
 	@PutMapping("/{uuid}")
+	@LogExecutionTime
 	public Mono<MobileAccessory> updateMobileAccessory(@PathVariable UUID uuid,
 			@RequestBody MobileAccessory mobileAccessory) {
 		Mono<MobileAccessory> mobileItem = getAllAccessoryById(uuid);
@@ -70,6 +76,7 @@ public class MobileAccessoryController {
 	}
 
 	@DeleteMapping("/{uuid}")
+	@LogExecutionTime
 	public Mono<String> deleMobile(@PathVariable UUID uuid) {
 		Mono<MobileAccessory> mobileItem = getAllAccessoryById(uuid);
 		return mobileItem.flatMap(acc -> {
