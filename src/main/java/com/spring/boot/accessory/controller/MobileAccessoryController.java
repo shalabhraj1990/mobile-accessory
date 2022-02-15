@@ -53,7 +53,7 @@ public class MobileAccessoryController {
 		return convertEntityToDto(repository.findById(uuid));
 	}
 
-	@GetMapping("/{mobile-type}")
+	@GetMapping("find/{mobile-type}")
 	@LogExecutionTime
 	public Flux<MobileAccessoryDto> getAllAccessoryByType(@PathVariable String mobileType) {
 		return convertEntityToDto(repository.findByMobileType(mobileType));
