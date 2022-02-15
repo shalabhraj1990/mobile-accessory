@@ -1,9 +1,6 @@
-//package com.spring.boot.accessory.entity;
+//package com.spring.boot.accessory.dto;
 //
 //import java.util.UUID;
-//
-//import org.springframework.data.annotation.Id;
-//import org.springframework.data.mongodb.core.mapping.Document;
 //
 //import lombok.AllArgsConstructor;
 //import lombok.Builder;
@@ -14,12 +11,11 @@
 //@AllArgsConstructor
 //@NoArgsConstructor
 //@Builder
-//@Document
-//public class MobileAccessory {
-//	@Id
+//
+//public class MobileAccessoryDto {
 //	private UUID id;
 //	private String name;
 //	private String desciption;
 //	private String mobileType;
-//	private boolean isActive;
+//	private Boolean isActive;
 //}

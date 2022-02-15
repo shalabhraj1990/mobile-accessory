@@ -2,6 +2,7 @@ package com.spring.boot.accessory.controller;
 
 import java.util.UUID;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.boot.accessory.annotations.LogExecutionTime;
-import com.spring.boot.accessory.entity.MobileAccessory;
 import com.spring.boot.accessory.repository.MobileAccessoryRepository;
 
+import msk.spring.boot.common.mobile.dto.MobileAccessoryDto;
+import msk.spring.boot.common.mobile.entity.MobileAccessory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +29,7 @@ public class MobileAccessoryController {
 
 	@PostMapping
 	@LogExecutionTime
-	public Flux<MobileAccessory> saveMobileAccessory(@RequestBody MobileAccessory mobileAccessory) {
+	public Flux<MobileAccessoryDto> saveMobileAccessory(@RequestBody MobileAccessory mobileAccessory) {
 		mobileAccessory.setActive(true);
 		UUID id = UUID.randomUUID();
 		mobileAccessory.setId(id);
@@ -41,27 +43,27 @@ public class MobileAccessoryController {
 
 	@GetMapping
 	@LogExecutionTime
-	public Flux<MobileAccessory> getAllAccessory() {
-		return repository.findAll();
+	public Flux<MobileAccessoryDto> getAllAccessory() {
+		return convertEntityToDto(repository.findAll());
 	}
 
 	@GetMapping("/{uuid}")
 	@LogExecutionTime
-	public Mono<MobileAccessory> getAllAccessoryById(@PathVariable UUID uuid) {
-		return repository.findById(uuid);
+	public Mono<MobileAccessoryDto> getAllAccessoryById(@PathVariable UUID uuid) {
+		return convertEntityToDto(repository.findById(uuid));
 	}
 
 	@GetMapping("/{mobile-type}")
 	@LogExecutionTime
-	public Flux<MobileAccessory> getAllAccessoryByType(@PathVariable String mobileType) {
-		return repository.findByMobileType(mobileType);
+	public Flux<MobileAccessoryDto> getAllAccessoryByType(@PathVariable String mobileType) {
+		return convertEntityToDto(repository.findByMobileType(mobileType));
 	}
 
 	@PutMapping("/{uuid}")
 	@LogExecutionTime
-	public Mono<MobileAccessory> updateMobileAccessory(@PathVariable UUID uuid,
+	public Mono<MobileAccessoryDto> updateMobileAccessory(@PathVariable UUID uuid,
 			@RequestBody MobileAccessory mobileAccessory) {
-		Mono<MobileAccessory> mobileItem = getAllAccessoryById(uuid);
+		Mono<MobileAccessoryDto> mobileItem = getAllAccessoryById(uuid);
 
 		return mobileItem.flatMap(acc -> {
 			if (null == acc || null == mobileAccessory)
@@ -69,6 +71,7 @@ public class MobileAccessoryController {
 			mobileAccessory.setActive(true);
 			mobileAccessory.setId(uuid);
 			return repository.save(mobileAccessory).flatMap(data -> {
+
 				return getAllAccessoryById(uuid);
 			});
 
@@ -78,13 +81,31 @@ public class MobileAccessoryController {
 	@DeleteMapping("/{uuid}")
 	@LogExecutionTime
 	public Mono<String> deleMobile(@PathVariable UUID uuid) {
-		Mono<MobileAccessory> mobileItem = getAllAccessoryById(uuid);
+		Mono<MobileAccessoryDto> mobileItem = getAllAccessoryById(uuid);
 		return mobileItem.flatMap(acc -> {
-			acc.setActive(false);
-			return repository.save(acc).flatMap(data -> {
+			MobileAccessory entity = new MobileAccessory();
+			BeanUtils.copyProperties(acc, entity);
+			entity.setActive(false);
+			return repository.save(entity).flatMap(data -> {
 				return Mono.just("success");
 			});
 
+		});
+	}
+
+	private Flux<MobileAccessoryDto> convertEntityToDto(Flux<MobileAccessory> allMobileDetails) {
+		return allMobileDetails.flatMap(entity -> {
+			MobileAccessoryDto dto = MobileAccessoryDto.builder().id(entity.getId()).desciption(entity.getDesciption())
+					.isActive(entity.isActive()).name(entity.getName()).mobileType(entity.getMobileType()).build();
+			return Mono.just(dto);
+		});
+	}
+
+	private Mono<MobileAccessoryDto> convertEntityToDto(Mono<MobileAccessory> allMobileDetails) {
+		return allMobileDetails.flatMap(entity -> {
+			MobileAccessoryDto dto = MobileAccessoryDto.builder().id(entity.getId()).desciption(entity.getDesciption())
+					.isActive(entity.isActive()).name(entity.getName()).mobileType(entity.getMobileType()).build();
+			return Mono.just(dto);
 		});
 	}
 
