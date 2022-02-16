@@ -55,7 +55,7 @@ public class MobileAccessoryController {
 
 	@GetMapping("find/{mobile-type}")
 	@LogExecutionTime
-	public Flux<MobileAccessoryDto> getAllAccessoryByType(@PathVariable String mobileType) {
+	public Flux<MobileAccessoryDto> getAllAccessoryByType(@PathVariable("mobile-type") String mobileType) {
 		return convertEntityToDto(repository.findByMobileType(mobileType));
 	}
 
